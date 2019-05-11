@@ -423,7 +423,7 @@ a.img:active img {
 .wrapper {
 	position: relative;
 	margin: 0 auto;
-	border: 0
+	border: 0;
 }
 
 .wrapper-992 {
@@ -2614,7 +2614,10 @@ a.convo:active {
 	box-shadow: 0 1px 3px rgba(0, 0, 0, .02), 0 4px 8px rgba(0, 0, 0, .02);
 	border-radius: 3px;
 	overflow: hidden;
-	-webkit-transition: transform .15s ease-in-out, box-shadow .15s ease-in-out
+	-webkit-transition: transform .15s ease-in-out, box-shadow .15s ease-in-out;
+	display: inline-block;
+	margin-left: 60px;
+	margin-top: 10px;
 }
 
 .Board .over h3 {
@@ -2948,7 +2951,7 @@ a.convo:active {
 
 .pin .actions .repin.pin-quick img {
 	position: relative;
-	top: 2px
+	top: -8px;
 }
 
 .pin .actions .unlike i {
@@ -7523,7 +7526,7 @@ margin-right: 10px;
 .pin-done .FollowBoard2 a.disabled {
 	height: 24px;
 	line-height: 24px;
-	right: 5px;
+	right: -2px;
 	bottom: 5px;
 	font-size: 12px;
 	padding: 0 9px

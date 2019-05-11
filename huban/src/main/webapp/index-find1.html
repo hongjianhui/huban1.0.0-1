@@ -8,9 +8,10 @@
     <title>花瓣网_陪你做生活的设计师</title>
     <link rel="stylesheet" type="text/css" href="css/index-find1.css">
     <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/Main.css"/>
     <script src="js/jquery-1.12.4.js" type="text/javascript"></script>
     <script src="js/Here with you.js" type="text/javascript"></script>
+    <script src="js/vue.js"></script>
 </head>
 
 <body>
@@ -30,8 +31,8 @@
 					<div class="left-part">
 						<a id="huaban" href="/"></a>
 						<a href="/" data-title="home" class="header-item active">首页</a>
-						<a href="/discovery/" class="header-item ">发现</a>
-						<a href="/all/" class="header-item ">最新</a>
+                        <a href="faxian.html" class="header-item ">发现</a>
+                        <a href="petal_bizi.html" class="header-item ">最新</a>
 						<div class="menu-nav" >
 							<div class="header-main-menu">
 								<div class="top-module">
@@ -163,16 +164,65 @@
             为您推荐
             <hr>
         </h1>
-        <div class="content">
-            <ul class="ul">
-                   <!--为你推荐-->
-            </ul>
+        <div class="wrapper" style="width:1200px">
+            <div id="waterfall" style="width: 1200px;height: 1000px">
+                <div data-id="341535979" v-for="gather in gathers" v-if="gather.gid != 0" class="pin wfc "
+                     style="position: absolute; left: 0; top: 0; opacity: 1;">
+                    <div class="hidden">
+                        <a href="/s555888_/">{{gather.user.uname}}</a>采集到
+                        <a href="/boards/4036688">{{gather.hname}}</a>
+                    </div>
+                    <div class="actions">
+                        <div class="right">
+                            <a data-id="341535979" title="喜欢" href="#" onclick="return false;"
+                               class="like btn-with-icon btn btn14"><i class="heart"></i><span class="text"> {{gather.love}}</span></a>
+                        </div>
+                        <div class="left">
+                            <a onclick="app.requireLogin(function(){ app.showDialogBox('repin', {pin_id:'341535979'});});return false;"
+                               href="#" class="repin pin-default btn btn14 rbtn">
+                                <span class="text"> 采集</span></a>
+                            <a href="#" onclick="return false;" class="repin pin-quick btn btn14 rbtn"><img
+                                    src="img/quick_pin.svg"></a>
+                        </div>
+                    </div>
+                    <a :href="'http://localhost:8080/huaban/info.html?gid='+gather.gid" target="_self" rel=""
+                       class="img x layer-view loaded">
+                        <div class="default-bg">pinterest.com</div>
+                        <img :src="getGatherImg(gather.img)" width="236" height="100%">
+                        <span style="display: none" class="stop"></span>
+                        <div class="cover"></div>
+                    </a>
+                    <p class="description">{{gather.details}}</p>
+                    <p class="stats less"><span title="转采" class="repin"><i></i>{{gather.transpond}}</span><span
+                            title="喜欢" class="like"><i></i>{{gather.love}}</span></p>
+                    <div class="convo attribution clearfix">
+                        <a href="/s555888_/" :title="gather.user.uname" rel="nofollow" class="img x"><img
+                                :src="getUserImg(gather.user.img)" class="avt"></a>
+                        <div class="text">
+                            <div class="inner">
+                                <div class="line">
+                                    <a href="/s555888_/" rel="" class="author x">{{gather.user.uname}}</a>&nbsp;采集到
+                                </div>
+                                <div class="line">
+                                    <a href="/boards/4036688/" rel="" class="x">{{gather.hname}}</a>
+                                </div>
+                                <a title="评论" class="replyButton"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:none;" class="comments muted"></div>
+                    <div style="display: none;" class="write convo clearfix">
+                        <a href="//" title="" class="img x"><img :src="gather.img"></a>
+                        <form action="" method="POST"><textarea placeholder="添加评论或把采集@给好友"
+                                                                class="clear-input GridComment"></textarea>
+                            <a href="#" onclick="return false;" class="grid_comment_button btn"><span
+                                    class="text"> 添加评论</span></a>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
         </div>
-        <h2>
-            <hr>
-                <a href="javascript:void(0)" id="loadmore" >加载更多</a>
-            <hr>
-        </h2>
     </div>
     <div class="classify">
         <div class="classify-title">
@@ -341,5 +391,134 @@
 </aside>
 <script src="js/jquery-1.11.3.js"></script>
 <script src="js/index-find.js"></script>
+<script type="text/javascript">
+    var gathreinfo = new Vue({
+        el: '#waterfall',
+        computed: {},
+        data: function () {
+            return {
+                pageNo: 0,
+                total: 0,
+                gathers: [{
+                    gid: 0,
+                    img: "",
+                    transpondUid: 0,
+                    transpond: 0,
+                    love: 0,
+                    hid: 0,
+                    details: "",
+                    hname: "",
+                    user: {
+                        uid: 0,
+                        uname: "",
+                    }
+                }]
+            };
+        },
+        created: function () {
+            window.addEventListener('scroll', this.skinwheel, true); //加载滚动监听事件
+            this.loadGather()
+        },
+        watch: {
+            gathers: function () {
+                setTimeout(function () {
+                    waterFall("waterfall", "wfc");
+                }, 500);
+            },
+            $route: function () {
+                this.gathers = [];
+                this.loadGather();
+            }
+        },
+        mounted: function () {
+
+        },
+        methods: {
+            loadGather: function () {
+                var fid = sessionStorage['followId'];//获取画板id
+                $.ajax({
+                    type: "get",
+                    url: "/huaban/tuijians",
+                    dataType: "json",
+                    success: function (data) {
+                        gathreinfo.gathers = (data);
+                        console.log(gathreinfo.gathers);
+                    }
+                });
+            },
+            getUserImg: function (img) {
+                return img == null ? "img/654953460733026a7ef6e101404055627ad51784a95c-B6OFs4_sq140sf.png" : "img/" + img;
+            },
+            getGatherImg: function (img) {
+                return "img/" + img;
+            },
+            skinwheel(event) {
+                if (this.pageNo + 1 * 10 > this.total) return;
+                console.log(event);
+                let vm = this
+                var height = $("#waterfall").height();
+                console.log(height);
+                console.log(event.pageY);
+                if (event.pageY > height - document.documentElement.clientHeight) {
+                    this.pageNo = this.pageNo + 1;
+                    this.loadGather();
+                }
+            },
+        },
+    });
+
+    // 瀑布流函数
+    function waterFall(parent, child) {
+        // 父盒子居中，取得所有父盒字
+        //先获得父元素及其底下所有的子元素
+        var oParent = document.getElementById(parent);
+        if (oParent == null) return;
+        var allBox = oParent.getElementsByClassName(child);
+        //    获取子盒子高度
+        //    var boxWidth = allBox[0].offsetWidth;
+        var boxWidth = allBox[0].offsetWidth;
+        // 求出列数
+        var cols = oParent.offsetWidth / boxWidth - 1;
+        var xyMargin = 16;
+        //    定义高度数组
+        var arrH = [];
+
+        // 遍历盒子
+        for (var i = 0; i < allBox.length; i++) {
+            // 求出每个盒子的高度
+            var boxH = allBox[i].offsetHeight + xyMargin;
+            if (i < cols) {
+                // heightArr.push(boxHeight); //第一行
+                arrH.push(boxH);
+                allBox[i].style.position = "absolute";
+                allBox[i].style.left = i * (boxWidth + xyMargin) + 'px';
+                allBox[i].style.top = xyMargin + 'px';
+            } else {
+                // 取出最矮的盒子高度
+                var minH = Math.min.apply(null, arrH);
+                //求出最矮盒子的对应所引
+                var minIndex = getMinBoxIndex(arrH, minH);
+                //子盒子定位
+                allBox[i].style.position = 'absolute';
+                allBox[i].style.left = minIndex * (boxWidth + xyMargin) + 'px';
+                allBox[i].style.top = minH + xyMargin + 'px';
+                arrH[minIndex] += boxH;
+            }
+        }
+        // 更新父盒子的高度
+        var parentHeight = allBox[allBox.length - 1].offsetTop + allBox[allBox.length - 1].offsetHeight;
+//        alert(parentHeight);
+        oParent.style.height = parentHeight + "px";
+    };
+
+    //获取最小下标函数
+    function getMinBoxIndex(arr, min) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] === min) {
+                return i;
+            }
+        }
+    }
+</script>
 </body>
 </html>
